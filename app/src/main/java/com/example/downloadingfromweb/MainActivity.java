@@ -2,9 +2,14 @@ package com.example.downloadingfromweb;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -20,12 +25,59 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
 
-    public class DownloadTasks extends AsyncTask<String, Void, String>{
+    Button buttonText;
+    ImageView imageView;
+
+    public void downloadImage(View view) {
+        Bitmap bitmapimage = null;
+        String url = "https://www.clipartmax.com/png/middle/6-64496_popeye-the-sailor-man-popeye-the-sailor-man.png";
+
+        DownloadTasks task = new DownloadTasks();
+        try {
+
+            bitmapimage = task.execute(url).get();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+        imageView.setImageBitmap(bitmapimage);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        imageView = findViewById(R.id.imageView);
+
+//        DownloadTasks task = new DownloadTasks();
+//        String result = null;
+//        try {
+//
+//
+//
+//            result = task.execute("https://en.wikipedia.org/wiki/Website").get();
+//
+//        } catch (Exception e) {
+//
+//            e.printStackTrace();
+//
+//        }
+//
+//        TextView text = findViewById(R.id.text_view);
+//        text.setText(result);
+//
+//        Log.i("Retuned Result ", result);
+    }
+
+    public class DownloadTasks extends AsyncTask<String, Void, Bitmap> {
 
         @Override
-        protected String doInBackground(String... urls) {
+        protected Bitmap doInBackground(String... urls) {
 
-            StringBuilder result = new StringBuilder();
+            //StringBuilder result = new StringBuilder();
             URL url = null;
             HttpURLConnection httpURLConnection = null;
 
@@ -33,9 +85,19 @@ public class MainActivity extends AppCompatActivity {
 
                 url = new URL(urls[0]);
 
-                httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                //httpURLConnection.connect();
 
                 InputStream inputStream = httpURLConnection.getInputStream();
+
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                return bitmap;
+
+
+               /* This is used to read the string contents of a web page.
+
 
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 
@@ -54,39 +116,15 @@ public class MainActivity extends AppCompatActivity {
                 bufferedReader.close();
 
                 return result.toString();
+                */
 
             } catch (Exception e) {
 
                 e.printStackTrace();
 
-                return "Failed";
-
             }
 
+            return null;
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        DownloadTasks task = new DownloadTasks();
-        String result = null;
-        try {
-
-            result = task.execute("https://en.wikipedia.org/wiki/Website").get();
-
-        } catch (ExecutionException | InterruptedException e) {
-
-            e.printStackTrace();
-
-        }
-        assert result != null;
-
-        TextView text = findViewById(R.id.text_view);
-        text.setText(result);
-
-        //Log.i("Retuned Result ", result);
     }
 }
